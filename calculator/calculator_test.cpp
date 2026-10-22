@@ -36,5 +36,20 @@ TEST_F(CalculatorTest, DivideByZeroThrows) {
   EXPECT_THROW(calculator_.Divide(1.0, 0.0), std::invalid_argument);
 }
 
+TEST_F(CalculatorTest, PowerRaisesBaseToExponent) {
+  EXPECT_DOUBLE_EQ(calculator_.Power(2.0, 10.0), 1024.0);
+  EXPECT_DOUBLE_EQ(calculator_.Power(9.0, 0.5), 3.0);
+  EXPECT_DOUBLE_EQ(calculator_.Power(5.0, 0.0), 1.0);
+}
+
+TEST_F(CalculatorTest, ModuloReturnsRemainder) {
+  EXPECT_DOUBLE_EQ(calculator_.Modulo(7.0, 3.0), 1.0);
+  EXPECT_DOUBLE_EQ(calculator_.Modulo(-7.0, 3.0), -1.0);
+}
+
+TEST_F(CalculatorTest, ModuloByZeroThrows) {
+  EXPECT_THROW(calculator_.Modulo(1.0, 0.0), std::invalid_argument);
+}
+
 }  // namespace
 }  // namespace calc

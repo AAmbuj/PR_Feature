@@ -9,7 +9,7 @@ namespace {
 
 int PrintUsage(const char* program) {
   std::cerr << "Usage: " << program << " <lhs> <op> <rhs>\n"
-            << "  op: + - x /\n";
+            << "  op: + - x / ^ %\n";
   return EXIT_FAILURE;
 }
 
@@ -35,6 +35,10 @@ int main(int argc, char* argv[]) {
       result = calculator.Multiply(lhs, rhs);
     } else if (op == "/") {
       result = calculator.Divide(lhs, rhs);
+    } else if (op == "^") {
+      result = calculator.Power(lhs, rhs);
+    } else if (op == "%") {
+      result = calculator.Modulo(lhs, rhs);
     } else {
       return PrintUsage(argv[0]);
     }
