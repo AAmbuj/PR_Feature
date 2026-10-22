@@ -1,0 +1,8 @@
+# Hermetic: never fall back to the host compiler or host env.
+common --repo_env=BAZEL_DO_NOT_DETECT_CPP_TOOLCHAIN=1
+build --incompatible_strict_action_env
+build --cxxopt=-std=c++17
+build --cxxopt=-Wall
+build --cxxopt=-Wextra
+build --cxxopt=-Werror
+test --test_output=errors
