@@ -48,14 +48,14 @@ each PR's diff shows only its own change.
 
 ```mermaid
 flowchart BT
-    PR1["#1 amsh_feat_calc_core<br/>Calculator core + Bazel"] --> trlc[(trlc)]
+    PR1["#1 amsh_feat_calc_core<br/>Calculator core + Bazel"] --> main[(main)]
     PR2["#2 amsh_feat_calc_muldiv<br/>Multiply / Divide"] --> PR1
     PR3["#3 amsh_test_calc_unit<br/>Unit tests"] --> PR2
     PR4["#4 amsh_feat_calc_cli<br/>calc CLI"] --> PR3
     PR5["#5 amsh_docs_calc_readme<br/>Power / Modulo + README"] --> PR4
 ```
 
-`trlc` is the default branch of this repository (plays the role of `master`).
+`main` is the default branch of this repository.
 
 ### Creating a stacked PR
 
@@ -66,7 +66,7 @@ git checkout -b amsh_feat_calc_muldiv     # child branch
 git push -u origin amsh_feat_calc_muldiv
 ```
 
-In the GitHub UI open the PR with **base = parent branch** (not `trlc`) and
+In the GitHub UI open the PR with **base = parent branch** (not `main`) and
 write `Depends on #<parent>` in the description.
 
 ### Updating a lower PR after review
@@ -103,15 +103,15 @@ not yet merged unless you intend to fold it (strategy B).
 
 ### Strategy A — bottom-up merge commit + retarget
 
-Merge the lowest PR into `trlc` with **Create a merge commit**, delete its
-branch, and let GitHub retarget the next PR to `trlc`. Repeat.
+Merge the lowest PR into `main` with **Create a merge commit**, delete its
+branch, and let GitHub retarget the next PR to `main`. Repeat.
 
 1. PR #1 → **Create a merge commit** → **Delete branch**.
-2. PR #2 is retargeted to `trlc` automatically (otherwise: *Edit* → change
-   base to `trlc`). Its diff is unchanged because the commits of #1 are
-   now in `trlc` with the same SHAs.
+2. PR #2 is retargeted to `main` automatically (otherwise: *Edit* → change
+   base to `main`). Its diff is unchanged because the commits of #1 are
+   now in `main` with the same SHAs.
 3. PR #2 → **Create a merge commit** → **Delete branch**. PR #3 is
-   retargeted to `trlc`.
+   retargeted to `main`.
 
 | Pros | Cons |
 |------|------|
@@ -120,20 +120,20 @@ branch, and let GitHub retarget the next PR to `trlc`. Repeat.
 
 ### Strategy C — squash merge + `rebase --onto`
 
-Squashing creates a **new** commit on `trlc`; the original commits of the
+Squashing creates a **new** commit on `main`; the original commits of the
 squashed PR are still in every branch above it. Git does not know they
 are the same change, so the next PR would show them again or conflict.
 `git rebase --onto` drops them.
 
 1. PR #3 → **Squash and merge** → **Delete branch**. PR #4 is retargeted
-   to `trlc` but now shows the PR #3 commits too.
-2. Rewrite PR #4 onto the new `trlc`, dropping the PR #3 commits:
+   to `main` but now shows the PR #3 commits too.
+2. Rewrite PR #4 onto the new `main`, dropping the PR #3 commits:
 
    ```bash
    git fetch origin
    OLD_PR4=$(git rev-parse amsh_feat_calc_cli)   # needed for PR #5
    # rebase --onto <new base> <old base (exclusive)> <branch>
-   git rebase --onto origin/trlc amsh_test_calc_unit amsh_feat_calc_cli
+   git rebase --onto origin/main amsh_test_calc_unit amsh_feat_calc_cli
    bazel test //...
    git push --force-with-lease origin amsh_feat_calc_cli
    ```
@@ -151,7 +151,7 @@ are the same change, so the next PR would show them again or conflict.
 
 | Pros | Cons |
 |------|------|
-| One clean commit per PR on `trlc` | Requires local rebase + force-push of every PR above |
+| One clean commit per PR on `main` | Requires local rebase + force-push of every PR above |
 | Linear, readable history | Rewrites SHAs; reviewers' local checkouts go stale |
 
 `--force-with-lease` refuses to overwrite the remote if someone else
@@ -160,18 +160,18 @@ pushed to the branch in the meantime; never use plain `--force`.
 ### Strategy B — fold the top into the bottom, merge once
 
 Merge the upper PR into its base branch first, then merge the combined
-lower PR into `trlc` once.
+lower PR into `main` once.
 
 1. PR #5 (base `amsh_feat_calc_cli`) → **Create a merge commit**. PR #5 is
    now *merged* into PR #4's branch, which contains both changes.
 2. Re-run `bazel test //...` on `amsh_feat_calc_cli`.
-3. PR #4 (base `trlc`) → **Create a merge commit** (or squash) →
+3. PR #4 (base `main`) → **Create a merge commit** (or squash) →
    **Delete branch**.
 
 | Pros | Cons |
 |------|------|
-| Single merge into `trlc`; one CI run on the combined result | `trlc` receives a large change at once |
-| No rebase, no force-push | PR #5 shows "merged" into a feature branch, not `trlc` |
+| Single merge into `main`; one CI run on the combined result | `main` receives a large change at once |
+| No rebase, no force-push | PR #5 shows "merged" into a feature branch, not `main` |
 | Good when the upper PRs are small or tightly coupled | Lower PR must not be merged before the upper ones are folded in |
 
 ### Choosing a strategy
@@ -185,8 +185,8 @@ lower PR into `trlc` once.
 ### Verify after merging
 
 ```bash
-git checkout trlc && git pull
-git log --graph --oneline trlc
+git checkout main && git pull
+git log --graph --oneline main
 bazel test //... && bazel run //app:calc -- 2 ^ 10
 ```
 
